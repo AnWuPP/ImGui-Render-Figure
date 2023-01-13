@@ -127,7 +127,9 @@ void CGui::RenderWindow() {
     ImGui::Begin("##MainWindow", 0, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
     static const char* items[] = { "Rect", "Triangle", "Circle" };
     static int currentItem = 0;
+    ImGui::PushItemWidth(140.f);
     ImGui::Combo("##combo", &currentItem, items, IM_ARRAYSIZE(items));
+    ImGui::PopItemWidth();
     ImGui::SameLine();
     if (ImGui::Button("Add figure")) {
         if (currentItem == 0) {
@@ -139,6 +141,10 @@ void CGui::RenderWindow() {
         else if (currentItem == 2) {
             AddFigure<CDrawCircle>(40, 0xFF505050 + figuries_.size() * 10);
         }
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Clear")) {
+        figuries_.clear();
     }
     ImGui::BeginChild("##figuries", ImVec2(0, 0), true);
     if (!figuries_.empty()) {
