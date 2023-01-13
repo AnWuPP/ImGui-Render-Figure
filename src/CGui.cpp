@@ -126,20 +126,27 @@ void CGui::RenderWindow() {
     // Window
     ImGui::Begin("##MainWindow", 0, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
     static const char* items[] = { "Rect", "Triangle", "Circle" };
+    static const char* colors[] = { "red", "green", "blue", "white" };
+    static uint32_t colorInteger[] = { 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFFFFFFFF };
     static int currentItem = 0;
+    static int currentColor = 3;
     ImGui::PushItemWidth(140.f);
     ImGui::Combo("##combo", &currentItem, items, IM_ARRAYSIZE(items));
     ImGui::PopItemWidth();
     ImGui::SameLine();
+    ImGui::PushItemWidth(140.f);
+    ImGui::Combo("##color", &currentColor, colors, IM_ARRAYSIZE(colors));
+    ImGui::PopItemWidth();
+    ImGui::SameLine();
     if (ImGui::Button("Add figure")) {
         if (currentItem == 0) {
-            AddFigure<CDrawRect>(80, 80, 0xFF505050 + figuries_.size() * 10);
+            AddFigure<CDrawRect>(80, 80, colorInteger[currentColor]);
         }
         else if (currentItem == 1) {
-            AddFigure<CDrawTriangle>(80, 80, 0xFF505050 + figuries_.size() * 10);
+            AddFigure<CDrawTriangle>(80, 80, colorInteger[currentColor]);
         }
         else if (currentItem == 2) {
-            AddFigure<CDrawCircle>(40, 0xFF505050 + figuries_.size() * 10);
+            AddFigure<CDrawCircle>(40, colorInteger[currentColor]);
         }
     }
     ImGui::SameLine();

@@ -1,6 +1,6 @@
 # ImGui Render Figure
 This is example rendering ImGui base figure
-![screen](https://i.imgur.com/cPugPet.png)
+![screen](https://i.imgur.com/61teisX.png)
 
 ## Build
 
