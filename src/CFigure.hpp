@@ -1,6 +1,5 @@
 #pragma once
 
-#include <string>
 #include <memory>
 
 struct FSize {
@@ -11,7 +10,6 @@ struct CBaseFigure {
     ~CBaseFigure() = default;
 
     uint32_t color;
-    std::string title;
 };
 
 struct CRect : CBaseFigure {

@@ -68,13 +68,6 @@ void CGui::Draw(CRect& rect) {
     auto drawList = ImGui::GetWindowDrawList();
     auto pos = ImGui::GetCursorScreenPos();
     drawList->AddRectFilled(pos, ImVec2(pos.x + rect.size.x, pos.y + rect.size.y), rect.color);
-    if (!rect.title.empty()) {
-        auto titleSize = ImGui::CalcTextSize(rect.title.c_str());
-        drawList->AddText(ImVec2(pos.x + rect.size.x / 2.f - titleSize.x / 2, pos.y + rect.size.y / 2.f - titleSize.y / 2.f),
-            -1,
-            rect.title.c_str()
-            );
-    }
     ImGui::Dummy(ImVec2(rect.size.x, rect.size.y));
 }
 
@@ -87,13 +80,6 @@ void CGui::Draw(CTriangle& triangle) {
         ImVec2(pos.x + triangle.size.x, pos.y + triangle.size.y),
         triangle.color
         );
-    if (!triangle.title.empty()) {
-        auto titleSize = ImGui::CalcTextSize(triangle.title.c_str());
-        drawList->AddText(ImVec2(pos.x + triangle.size.x / 2.f - titleSize.x / 2, pos.y + triangle.size.y / 2.f - titleSize.y / 2.f),
-            -1,
-            triangle.title.c_str()
-            );
-    }
     ImGui::Dummy(ImVec2(triangle.size.x, triangle.size.y));
 }
 
@@ -105,14 +91,7 @@ void CGui::Draw(CCircle& circle) {
         circle.radius,
         circle.color
         );
-    if (!circle.title.empty()) {
-        auto titleSize = ImGui::CalcTextSize(circle.title.c_str());
-        drawList->AddText(ImVec2(pos.x + circle.radius - titleSize.x / 2, pos.y + circle.radius - titleSize.y / 2.f),
-            -1,
-            circle.title.c_str()
-            );
-    }
-    ImGui::Dummy(ImVec2(circle.radius, circle.radius));
+    ImGui::Dummy(ImVec2(circle.radius * 2, circle.radius * 2));
 }
 
 void CGui::RenderWindow() {
@@ -135,12 +114,33 @@ void CGui::RenderWindow() {
 
     // Window
     ImGui::Begin("##MainWindow", 0, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
-
-    if (!figuries_.empty()) {
-        for (auto &f : figuries_) {
-            std::visit([this](auto& fi) { return Draw(fi); }, f);
+    static const char* items[] = { "Rect", "Triangle", "Circle" };
+    static int currentItem = 0;
+    ImGui::Combo("##combo", &currentItem, items, IM_ARRAYSIZE(items));
+    ImGui::SameLine();
+    if (ImGui::Button("Add figure")) {
+        if (currentItem == 0) {
+            AddFigure<CRect>(80, 80, 0xFF505050 + figuries_.size() * 10);
+        }
+        else if (currentItem == 1) {
+            AddFigure<CTriangle>(80, 80, 0xFF505050 + figuries_.size() * 10);
+        }
+        else if (currentItem == 2) {
+            AddFigure<CCircle>(40, 0xFF505050 + figuries_.size() * 10);
         }
     }
+    ImGui::BeginChild("##figuries", ImVec2(0, 0), true);
+    if (!figuries_.empty()) {
+        uint32_t count = 0;
+        for (auto &f : figuries_) {
+            std::visit([this](auto& fi) { return Draw(fi); }, f);
+            count++;
+            if (count % 8 != 0) {
+                ImGui::SameLine();
+            }
+        }
+    }
+    ImGui::EndChild();
 
     ImGui::End();
 
