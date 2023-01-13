@@ -6,6 +6,30 @@
 #include <vector>
 #include <variant>
 
+struct CDraw {
+    virtual ~CDraw() = default;
+    virtual void Draw() = 0;
+};
+
+struct CDrawRect : CDraw {
+    CRect rect;
+    CDrawRect(uint32_t width, uint32_t height, uint32_t color);
+    CDrawRect(uint32_t width, uint32_t height);
+    void Draw() override;
+};
+struct CDrawTriangle : CDraw {
+    CTriangle triangle;
+    CDrawTriangle(uint32_t width, uint32_t height, uint32_t color);
+    CDrawTriangle(uint32_t width, uint32_t height);
+    void Draw() override;
+};
+struct CDrawCircle : CDraw {
+    CCircle circle;
+    CDrawCircle(uint32_t radius, uint32_t color);
+    CDrawCircle(uint32_t radius);
+    void Draw() override;
+};
+
 class CGui {
 public:
     CGui();
@@ -13,11 +37,11 @@ public:
     void RenderWindow();
     bool IsWindowOpen();
     template<class T>
-    void AddFigure(uint32_t width, uint32_t height, uint32_t color);
+    std::shared_ptr<T> AddFigure(uint32_t width, uint32_t height, uint32_t color);
     template<class T>
-    void AddFigure(uint32_t radius, uint32_t color);
+    std::shared_ptr<T> AddFigure(uint32_t radius, uint32_t color);
     template<class T>
-    void AddFigure(uint32_t radius);
+    std::shared_ptr<T> AddFigure(uint32_t radius);
 
     // figuries render
     void Draw(CRect& rect);
@@ -25,5 +49,5 @@ public:
     void Draw(CCircle& circle);
 private:
 	GLFWwindow* window_;
-    std::vector<std::variant<CRect, CCircle, CTriangle>> figuries_;
+    std::vector<std::shared_ptr<CDraw>> figuries_;
 };

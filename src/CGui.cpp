@@ -4,6 +4,42 @@
 #include <imgui_impl_opengl3.h>
 #include <format>
 
+CDrawRect::CDrawRect(uint32_t width, uint32_t height, uint32_t color) : rect(width, height, color) { }
+CDrawRect::CDrawRect(uint32_t width, uint32_t height) : rect(width, height) { }
+void CDrawRect::Draw() {
+    auto drawList = ImGui::GetWindowDrawList();
+    auto pos = ImGui::GetCursorScreenPos();
+    drawList->AddRectFilled(pos, ImVec2(pos.x + rect.size.x, pos.y + rect.size.y), rect.color);
+    ImGui::Dummy(ImVec2(rect.size.x, rect.size.y));
+}
+
+CDrawTriangle::CDrawTriangle(uint32_t width, uint32_t height, uint32_t color) : triangle(width, height, color) { }
+CDrawTriangle::CDrawTriangle(uint32_t width, uint32_t height) : triangle(width, height) { }
+void CDrawTriangle::Draw() {
+    auto drawList = ImGui::GetWindowDrawList();
+    auto pos = ImGui::GetCursorScreenPos();
+
+    drawList->AddTriangleFilled(ImVec2(pos.x, pos.y + triangle.size.y),
+        ImVec2(pos.x + triangle.size.x / 2.f, pos.y),
+        ImVec2(pos.x + triangle.size.x, pos.y + triangle.size.y),
+        triangle.color
+        );
+    ImGui::Dummy(ImVec2(triangle.size.x, triangle.size.y));
+}
+
+CDrawCircle::CDrawCircle(uint32_t radius, uint32_t color) : circle(radius, color) { }
+CDrawCircle::CDrawCircle(uint32_t radius) : circle(radius) { }
+void CDrawCircle::Draw() {
+    auto drawList = ImGui::GetWindowDrawList();
+    auto pos = ImGui::GetCursorScreenPos();
+
+    drawList->AddCircleFilled(ImVec2(pos.x + circle.radius, pos.y + circle.radius),
+        circle.radius,
+        circle.color
+        );
+    ImGui::Dummy(ImVec2(circle.radius * 2, circle.radius * 2));
+}
+
 CGui::CGui() {
     if (!glfwInit()) {
 		return;
@@ -33,24 +69,30 @@ CGui::CGui() {
     io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\trebucbd.ttf", 16.0f, &font_config, io.Fonts->GetGlyphRangesCyrillic());
 
     // add figuries
-    AddFigure<CRect>(40, 50, 0xCC00FFFF);
-    AddFigure<CTriangle>(40, 50, 0xCC00FFFF);
-    AddFigure<CCircle>(50);
+    AddFigure<CDrawRect>(40, 50, 0xCC00FFFF);
+    AddFigure<CDrawTriangle>(40, 50, 0xCC00FFFF);
+    AddFigure<CDrawCircle>(50);
 }
 
 template<class T>
-void CGui::AddFigure(uint32_t width, uint32_t height, uint32_t color) {
-    figuries_.push_back(T(width, height, color));
+std::shared_ptr<T> CGui::AddFigure(uint32_t width, uint32_t height, uint32_t color) {
+    auto ptr = std::make_shared<T>(width, height, color);
+    figuries_.push_back(ptr);
+    return ptr;
 }
 
 template<class T>
-void CGui::AddFigure(uint32_t radius, uint32_t color) {
-    figuries_.push_back(T(radius, color));
+std::shared_ptr<T> CGui::AddFigure(uint32_t radius, uint32_t color) {
+    auto ptr = std::make_shared<T>(radius, color);
+    figuries_.push_back(ptr);
+    return ptr;
 }
 
 template<class T>
-void CGui::AddFigure(uint32_t radius) {
-    figuries_.push_back(T(radius));
+std::shared_ptr<T> CGui::AddFigure(uint32_t radius) {
+    auto ptr = std::make_shared<T>(radius);
+    figuries_.push_back(ptr);
+    return ptr;
 }
 
 CGui::~CGui() {
@@ -61,36 +103,6 @@ CGui::~CGui() {
 
 bool CGui::IsWindowOpen() {
     return window_ != nullptr && !glfwWindowShouldClose(window_);
-}
-
-void CGui::Draw(CRect& rect) {
-    auto drawList = ImGui::GetWindowDrawList();
-    auto pos = ImGui::GetCursorScreenPos();
-    drawList->AddRectFilled(pos, ImVec2(pos.x + rect.size.x, pos.y + rect.size.y), rect.color);
-    ImGui::Dummy(ImVec2(rect.size.x, rect.size.y));
-}
-
-void CGui::Draw(CTriangle& triangle) {
-    auto drawList = ImGui::GetWindowDrawList();
-    auto pos = ImGui::GetCursorScreenPos();
-
-    drawList->AddTriangleFilled(ImVec2(pos.x, pos.y + triangle.size.y),
-        ImVec2(pos.x + triangle.size.x / 2.f, pos.y),
-        ImVec2(pos.x + triangle.size.x, pos.y + triangle.size.y),
-        triangle.color
-        );
-    ImGui::Dummy(ImVec2(triangle.size.x, triangle.size.y));
-}
-
-void CGui::Draw(CCircle& circle) {
-    auto drawList = ImGui::GetWindowDrawList();
-    auto pos = ImGui::GetCursorScreenPos();
-
-    drawList->AddCircleFilled(ImVec2(pos.x + circle.radius, pos.y + circle.radius),
-        circle.radius,
-        circle.color
-        );
-    ImGui::Dummy(ImVec2(circle.radius * 2, circle.radius * 2));
 }
 
 void CGui::RenderWindow() {
@@ -119,20 +131,20 @@ void CGui::RenderWindow() {
     ImGui::SameLine();
     if (ImGui::Button("Add figure")) {
         if (currentItem == 0) {
-            AddFigure<CRect>(80, 80, 0xFF505050 + figuries_.size() * 10);
+            AddFigure<CDrawRect>(80, 80, 0xFF505050 + figuries_.size() * 10);
         }
         else if (currentItem == 1) {
-            AddFigure<CTriangle>(80, 80, 0xFF505050 + figuries_.size() * 10);
+            AddFigure<CDrawTriangle>(80, 80, 0xFF505050 + figuries_.size() * 10);
         }
         else if (currentItem == 2) {
-            AddFigure<CCircle>(40, 0xFF505050 + figuries_.size() * 10);
+            AddFigure<CDrawCircle>(40, 0xFF505050 + figuries_.size() * 10);
         }
     }
     ImGui::BeginChild("##figuries", ImVec2(0, 0), true);
     if (!figuries_.empty()) {
         uint32_t count = 0;
         for (auto &f : figuries_) {
-            std::visit([this](auto& fi) { return Draw(fi); }, f);
+            f->Draw();
             count++;
             if (count % 8 != 0) {
                 ImGui::SameLine();
