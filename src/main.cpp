@@ -1,8 +1,8 @@
-#include "CGui.h"
+#include "Gui.h"
 
 int main() {
     // For demonstration, we will do without a control class, only an interface
-    CGui gui;
+    Gui gui;
     
     while(gui.IsWindowOpen()) {
         gui.RenderWindow();

@@ -17,7 +17,9 @@ include_directories(
 target_sources(${PROJECT_NAME} PRIVATE
     # app files
     src/main.cpp
-    src/CGui.cpp
+    src/gui.cpp
+    src/figure.cpp
+    src/draw.cpp
     # ImGui files
     imgui/imgui.cpp
     imgui/backends/imgui_impl_glfw.cpp
